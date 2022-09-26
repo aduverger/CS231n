@@ -1,7 +1,4 @@
-from builtins import range
 import numpy as np
-from random import shuffle
-from past.builtins import xrange
 
 
 def softmax_loss_naive(W, X, y, reg):
@@ -25,18 +22,27 @@ def softmax_loss_naive(W, X, y, reg):
     # Initialize the loss and gradient to zero.
     loss = 0.0
     dW = np.zeros_like(W)
+    n_train = X.shape[0]
+    n_classes = W.shape[1]
 
-    #############################################################################
-    # TODO: Compute the softmax loss and its gradient using explicit loops.     #
-    # Store the loss in loss and the gradient in dW. If you are not careful     #
-    # here, it is easy to run into numeric instability. Don't forget the        #
-    # regularization!                                                           #
-    #############################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    for i in range(n_train):
+        scores = X[i].dot(W)
+        correct_class_score = scores[y[i]]
+        exp_sum = 0
 
-    pass
+        loss -= correct_class_score
+        dW[:, y[i]] -= X[i].T
+        for j in range(n_classes):
+            exp_sum += np.exp(scores[j])
+        loss += np.log(exp_sum)
+        for j in range(n_classes):
+            dW[:, j] += X[i].T * np.exp(scores[j]) / exp_sum
 
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    loss /= n_train
+    dW /= n_train
+
+    loss += reg * np.sum(W * W)
+    dW += reg / 2 * W
 
     return loss, dW
 
@@ -50,17 +56,18 @@ def softmax_loss_vectorized(W, X, y, reg):
     # Initialize the loss and gradient to zero.
     loss = 0.0
     dW = np.zeros_like(W)
+    N = X.shape[0]
 
-    #############################################################################
-    # TODO: Compute the softmax loss and its gradient using no explicit loops.  #
-    # Store the loss in loss and the gradient in dW. If you are not careful     #
-    # here, it is easy to run into numeric instability. Don't forget the        #
-    # regularization!                                                           #
-    #############################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    scores = X @ W
+    correct_class_scores = scores[range(N), y]
+    exp_sum = np.sum(np.exp(scores), axis=1)
+    loss = np.sum(np.log(exp_sum) - correct_class_scores) / N
 
-    pass
+    EXP = np.exp(scores) / np.expand_dims(exp_sum, axis=1)
+    EXP[range(N), y] -= 1
+    dW = X.T @ EXP / N
 
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    loss += reg * np.sum(W * W)
+    dW += reg / 2 * W
 
     return loss, dW
