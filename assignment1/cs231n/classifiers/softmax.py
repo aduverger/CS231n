@@ -20,7 +20,6 @@ def softmax_loss_naive(W, X, y, reg):
     - gradient with respect to weights W; an array of same shape as W
     """
     # Initialize the loss and gradient to zero.
-    loss = 0.0
     dW = np.zeros_like(W)
     n_train = X.shape[0]
     n_classes = W.shape[1]
@@ -54,7 +53,6 @@ def softmax_loss_vectorized(W, X, y, reg):
     Inputs and outputs are the same as softmax_loss_naive.
     """
     # Initialize the loss and gradient to zero.
-    loss = 0.0
     dW = np.zeros_like(W)
     N = X.shape[0]
 

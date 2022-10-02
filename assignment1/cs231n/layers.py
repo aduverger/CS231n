@@ -1,6 +1,4 @@
-from builtins import range
 import numpy as np
-
 
 
 def affine_forward(x, w, b):
@@ -21,19 +19,9 @@ def affine_forward(x, w, b):
     - out: output, of shape (N, M)
     - cache: (x, w, b)
     """
-    out = None
-    ###########################################################################
-    # TODO: Implement the affine forward pass. Store the result in out. You   #
-    # will need to reshape the input into rows.                               #
-    ###########################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+    N = x.shape[0]
+    x_reshaped = np.reshape(x, (N, -1))
+    out = (x_reshaped @ w) + b
     cache = (x, w, b)
     return out, cache
 
@@ -53,20 +41,17 @@ def affine_backward(dout, cache):
     - dx: Gradient with respect to x, of shape (N, d1, ..., d_k)
     - dw: Gradient with respect to w, of shape (D, M)
     - db: Gradient with respect to b, of shape (M,)
+
     """
     x, w, b = cache
-    dx, dw, db = None, None, None
-    ###########################################################################
-    # TODO: Implement the affine backward pass.                               #
-    ###########################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    N = x.shape[0]
+    x_reshaped = np.reshape(x, (N, -1))
 
-    pass
+    dx = dout @ w.T
+    dx = np.reshape(dx, (N, *x.shape[1:]))
+    dw = x_reshaped.T @ dout
+    db = dout.sum(axis=0)
 
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
     return dx, dw, db
 
 
@@ -81,18 +66,7 @@ def relu_forward(x):
     - out: Output, of the same shape as x
     - cache: x
     """
-    out = None
-    ###########################################################################
-    # TODO: Implement the ReLU forward pass.                                  #
-    ###########################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+    out = np.maximum(np.zeros(x.shape), x)
     cache = x
     return out, cache
 
@@ -109,17 +83,7 @@ def relu_backward(dout, cache):
     - dx: Gradient with respect to x
     """
     dx, x = None, cache
-    ###########################################################################
-    # TODO: Implement the ReLU backward pass.                                 #
-    ###########################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
-    pass
-
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+    dx = dout * (x > 0)
     return dx
 
 
@@ -137,20 +101,19 @@ def svm_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-    loss, dx = None, None
-    ###########################################################################
-    # TODO: Implement loss and gradient for multiclass SVM classification.    #
-    # This will be similar to the svm loss vectorized implementation in       #
-    # cs231n/classifiers/linear_svm.py.                                       #
-    ###########################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    N = x.shape[0]
+    x_true = np.expand_dims(x[range(N), y], axis=1)
 
-    pass
+    margins = x - x_true + 1
+    margins[range(N), y] = 0
+    margins = np.maximum(0, margins)
 
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+    loss = np.sum(margins) / N
+
+    mask = np.where(margins > 0, 1, 0)
+    mask[range(N), y] -= mask.sum(axis=1)
+    dx = mask / N
+
     return loss, dx
 
 
@@ -168,18 +131,15 @@ def softmax_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-    loss, dx = None, None
-    ###########################################################################
-    # TODO: Implement the loss and gradient for softmax classification. This  #
-    # will be similar to the softmax loss vectorized implementation in        #
-    # cs231n/classifiers/softmax.py.                                          #
-    ###########################################################################
-    # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N = x.shape[0]
 
-    # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    ###########################################################################
-    #                             END OF YOUR CODE                            #
-    ###########################################################################
+    x_true = x[range(N), y]
+    exp_sum = np.sum(np.exp(x), axis=1)
+    loss = np.sum(np.log(exp_sum) - x_true) / N
+
+    EXP = np.exp(x) / np.expand_dims(exp_sum, axis=1)
+    EXP[range(N), y] -= 1
+    dx = EXP / N
+
     return loss, dx
