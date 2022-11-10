@@ -19,7 +19,7 @@ Starter code containing Colab notebooks can be [downloaded here](https://cs231n.
 
 ## Goals
 
-In this akksignment you will practice putting together a simple image classification pipeline based on the k-Nearest Neighbor or the SVM/Softmax classifier. The goals of this assignment are as follows:
+In this ahhsignment you will practice putting together a simple image classification pipeline based on the k-Nearest Neighbor or the SVM/Softmax classifier. The goals of this assignment are as follows:
 
 - Understand the basic **Image Classification pipeline** and the data-driven approach (train/predict stages).
 - Understand the train/val/test **splits** and the use of validation data for **hyperparameter tuning**.
