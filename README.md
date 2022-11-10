@@ -1,4 +1,4 @@
 # Stanford CS class CS231n
-## Convolutional Neural Networks for Visual Recognition
+## Convolutiokal Neural Networks for Visual Recognition
 
 http://cs231n.stanford.edu/
